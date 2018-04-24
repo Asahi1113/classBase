@@ -1,4 +1,5 @@
 <?php
+namespace curl;
 /**
  * Created by PhpStorm.
  * User: admin
@@ -10,6 +11,7 @@ class Curl
     const USER_AGENT = 'PHP Curl/1.6 (+https://github.com/php-mod/curl)';
 
     private $_cookies;
+    private $_headers = [];
 
     public $curl;
     public $response = null;
@@ -114,15 +116,21 @@ class Curl
         }
         $this->setOpt(CURLOPT_POSTFIELDS,$data);
     }
+    public function setUserAgent($useragent)
+    {
+        $this->setOpt(CURLOPT_USERAGENT,$useragent);
+        return $this;
+    }
     public function setCookie($cookie)
     {
         $this->_cookies = $cookie;
         $this->setOpt(CURLOPT_COOKIE,$cookie);
         return $this;
     }
-    public function setUserAgent($useragent)
+    public function setHeader($key,$value)
     {
-        $this->setOpt(CURLOPT_USERAGENT,$useragent);
+        $this->_headers[$key] = $key.': '.$value;
+        $this->setOpt(CURLOPT_HTTPHEADER,array_values($this->_headers));
         return $this;
     }
     public function close()
