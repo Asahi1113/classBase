@@ -11,7 +11,7 @@ class Curl
     const USER_AGENT = 'PHP Curl/1.6 (+https://github.com/php-mod/curl)';
 
     private $_cookies;
-    private $_headers = [];
+    private $_headers;
 
     public $curl;
     public $response = null;
@@ -127,10 +127,11 @@ class Curl
         $this->setOpt(CURLOPT_COOKIE,$cookie);
         return $this;
     }
-    public function setHeader($key,$value)
+
+    public function setHeader($header)
     {
-        $this->_headers[$key] = $key.': '.$value;
-        $this->setOpt(CURLOPT_HTTPHEADER,array_values($this->_headers));
+        $this->_headers = $header;
+        $this->setOpt(CURLOPT_HTTPHEADER,$this->_headers);
         return $this;
     }
     public function close()
