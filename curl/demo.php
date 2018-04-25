@@ -22,5 +22,7 @@ $curl->setReferer('localhost/demo.php');
 $curl->get('http://demo.cnyotc.cn/test/test.php');
 
 echo $curl->response;
+var_dump($curl->isInfo());
+print_r($curl->isSuccess());
 echo '<br/><hr/>';
-print_r($curl->getOpt(CURLINFO_HEADER_OUT));
+

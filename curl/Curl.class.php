@@ -8,13 +8,18 @@ namespace curl;
  */
 class Curl
 {
+    const AUTH_BASIC = CURLAUTH_BASIC;
+    const AUTH_DIGEST = CURLAUTH_DIGEST;
+    const AUTH_GSSNEGOTIATE = CURLAUTH_GSSNEGOTIATE;
+    const AUTH_NTLM = CURLAUTH_NTLM;
+    const AUTH_ANY = CURLAUTH_ANY;
+    const AUTH_ANYSAFE = CURLAUTH_ANYSAFE;
     const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3371.0 Safari/537.36';
 
     private $_cookies = [];
     private $_headers = [];
 
     public $curl;
-    public $response = null;
 
     public $error = false;
     public $error_code = 0;
@@ -29,6 +34,7 @@ class Curl
     public $request_headers = null;
     public $response_headers = [];
 
+    public $response = null;
     protected $response_header_continue = false;
 
     public function __construct()
@@ -82,6 +88,11 @@ class Curl
 
         return $this->error_code;
     }
+    //不建议直接调用exec()
+    public function _exec()
+    {
+        return $this->exec();
+    }
     public function setOpt($option,$value)
     {
         return curl_setopt($this->curl,$option,$value);
@@ -116,24 +127,13 @@ class Curl
         $this->exec();
         return $this;
     }
-    public function preparePayload($data)
+    protected function preparePayload($data)
     {
         $this->setOpt(CURLOPT_POST,true);
         if(is_array($data) || is_object($data)){
             $data = http_build_query($data);
         }
         $this->setOpt(CURLOPT_POSTFIELDS,$data);
-    }
-    public function setUserAgent($useragent)
-    {
-        $this->setOpt(CURLOPT_USERAGENT,$useragent);
-        return $this;
-    }
-    public function setCookie($key,$value)
-    {
-        $this->_cookies[$key] = $value;
-        $this->setOpt(CURLOPT_COOKIE,http_build_query($this->_cookies,'','; '));
-        return $this;
     }
 
     public function setHeader($key,$value)
@@ -142,10 +142,32 @@ class Curl
         $this->setOpt(CURLOPT_HTTPHEADER, array_values($this->_headers));
         return $this;
     }
+    public function setCookie($key,$value)
+    {
+        $this->_cookies[$key] = $value;
+        $this->setOpt(CURLOPT_COOKIE,http_build_query($this->_cookies,'','; '));
+        return $this;
+    }
+    public function setUserAgent($useragent)
+    {
+        $this->setOpt(CURLOPT_USERAGENT,$useragent);
+        return $this;
+    }
     public function setReferer($referer)
     {
         $this->setOpt(CURLOPT_REFERER,$referer);
         return $this;
+    }
+
+    public function setBasicAuthentication($username,$password)
+    {
+        $this->setHttpAuth(self::AUTH_BASIC);
+        $this->setOpt(CURLOPT_USERPWD,$username.':'.$password);
+        return $this;
+    }
+    protected function setHttpAuth($httpauth)
+    {
+        $this->setOpt(CURLOPT_HTTPAUTH,$httpauth);      //使用的http验证方法
     }
     public function close()
     {
@@ -158,5 +180,29 @@ class Curl
     {
         // TODO: Implement __destruct() method.
         $this->close();
+    }
+    public function isInfo()
+    {
+        return $this->http_status_code >= 100 && $this->http_status_code < 200;      //100-199,用于指定客户端相应的某些动作
+    }
+    public function isSuccess()
+    {
+        return $this->http_status_code >= 200 && $this->http_status_code < 300;
+    }
+    public function isRedirect()
+    {
+        return $this->http_status_code >= 300 && $this->http_status_code < 400;
+    }
+    public function isClientError()
+    {
+        return $this->http_status_code >= 400 && $this->http_status_code < 500;
+    }
+    public function isServerError()
+    {
+        return $this->http_status_code >= 500 && $this->http_status_code < 600;
+    }
+    public function isError()
+    {
+        return $this->http_status_code >= 300 && $this->http_status_code < 600;
     }
 }
