@@ -169,6 +169,26 @@ class Curl
     {
         $this->setOpt(CURLOPT_HTTPAUTH,$httpauth);      //使用的http验证方法
     }
+    public function restat()
+    {
+        $this->close();
+        $this->_cookies = [];
+        $this->_headers = [];
+        $this->error = false;
+        $this->error_code = 0;
+        $this->error_message = null;
+        $this->curl_error = false;
+        $this->curl_error_code = 0;
+        $this->curl_error_message = null;
+        $this->http_error = false;
+        $this->http_status_code = 0;
+        $this->http_error_message = null;
+        $this->request_headers = null;
+        $this->response = null;
+        $this->response_headers = [];
+        $this->init();
+        return $this;
+    }
     public function close()
     {
         if(is_resource($this->curl)){
@@ -203,6 +223,6 @@ class Curl
     }
     public function isError()
     {
-        return $this->http_status_code >= 300 && $this->http_status_code < 600;
+        return $this->http_status_code >= 400 && $this->http_status_code < 600;
     }
 }
