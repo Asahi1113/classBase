@@ -8,10 +8,10 @@ namespace curl;
  */
 class Curl
 {
-    const USER_AGENT = 'PHP Curl/1.6 (+https://github.com/php-mod/curl)';
+    const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3371.0 Safari/537.36';
 
-    private $_cookies;
-    private $_headers;
+    private $_cookies = [];
+    private $_headers = [];
 
     public $curl;
     public $response = null;
@@ -86,6 +86,10 @@ class Curl
     {
         return curl_setopt($this->curl,$option,$value);
     }
+    public function getOpt($option)
+    {
+        return curl_getinfo($this->curl,$option);
+    }
     private function isHttps($url)
     {
         if(stripos($url,'https:') !== false)
@@ -121,17 +125,17 @@ class Curl
         $this->setOpt(CURLOPT_USERAGENT,$useragent);
         return $this;
     }
-    public function setCookie($cookie)
+    public function setCookie($key,$value)
     {
-        $this->_cookies = $cookie;
-        $this->setOpt(CURLOPT_COOKIE,$cookie);
+        $this->_cookies[$key] = $value;
+        $this->setOpt(CURLOPT_COOKIE,http_build_query($this->_cookies,'','; '));
         return $this;
     }
 
-    public function setHeader($header)
+    public function setHeader($key,$value)
     {
-        $this->_headers = $header;
-        $this->setOpt(CURLOPT_HTTPHEADER,$this->_headers);
+        $this->_headers[$key] = $key.': '.$value;
+        $this->setOpt(CURLOPT_HTTPHEADER, array_values($this->_headers));
         return $this;
     }
     public function close()
