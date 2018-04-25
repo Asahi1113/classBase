@@ -90,6 +90,10 @@ class Curl
     {
         return curl_getinfo($this->curl,$option);
     }
+    public function getEndpoint()
+    {
+        return $this->getOpt(CURLINFO_EFFECTIVE_URL);   //最后一个有效的URL地址
+    }
     private function isHttps($url)
     {
         if(stripos($url,'https:') !== false)
@@ -136,6 +140,11 @@ class Curl
     {
         $this->_headers[$key] = $key.': '.$value;
         $this->setOpt(CURLOPT_HTTPHEADER, array_values($this->_headers));
+        return $this;
+    }
+    public function setReferer($referer)
+    {
+        $this->setOpt(CURLOPT_REFERER,$referer);
         return $this;
     }
     public function close()

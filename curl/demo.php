@@ -18,6 +18,7 @@ $header = array(
 $curl->setHeader('CLIENT-IP','111.11.111.11');
 $curl->setHeader('X-FORWARDED-FOR','123.456.789.119');
 $curl->setCookie('PHPSESSID','a0ku3d621amg6f3dao2jllaea7');
+$curl->setReferer('localhost/demo.php');
 $curl->get('http://demo.cnyotc.cn/test/test.php');
 
 echo $curl->response;
